@@ -102,7 +102,8 @@ export default {
     if (isObject(coordinates) && coordinates.top !== undefined && coordinates.left !== undefined) {
       this.each((_i, element) => {
         const rect = element.getBoundingClientRect();
-        if (window.getComputedStyle(element).position === 'static') {
+        const position = window.getComputedStyle(element).position || element.style.position;
+        if (!position || position === 'static') {
           element.style.position = 'relative';
         }
         element.style.top = coordinates.top - (rect.top + window.scrollY) + parseFloat(element.style.top || 0) + 'px';
