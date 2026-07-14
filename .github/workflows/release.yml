@@ -1,26 +1,67 @@
 name: Release
 
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write # create the GitHub release
+  id-token: write # npm provenance
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
+    environment: production
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          node-version: 24
           cache: npm
+          registry-url: https://registry.npmjs.org
+
       - run: npm ci
+
       - run: npm run lint
-      - run: npm run build
+
       - run: npm test
-      - run: npm publish --provenance --access public
+
+      - run: npm run build
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+
+      - name: Bump version, commit, and tag
+        id: bump_version
+        run: |
+          NEW_TAG=$(npm version "${{ inputs.bump }}" -m "chore(release): %s")
+          echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: npm publish preflight
+        run: |
+          npm config get registry
+          npm pack --dry-run
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
+
+      - name: Push commit and tag
+        run: git push origin HEAD --follow-tags
+
+      - name: Create GitHub release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          NEW_TAG: ${{ steps.bump_version.outputs.new_tag }}
+        run: gh release create "$NEW_TAG" dist/* --title "$NEW_TAG" --generate-notes
