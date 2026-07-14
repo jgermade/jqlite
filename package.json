@@ -1,14 +1,31 @@
 {
   "name": "jqlite",
-  "version": "0.2.42",
-  "description": "Tiny JavaScript DOM query library",
+  "version": "1.0.0",
+  "description": "Tiny jQuery-like DOM query library for modern browsers",
   "type": "module",
-  "main": "legacy/jqlite.js",
+  "main": "dist/jqlite.cjs",
+  "module": "dist/jqlite.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/jqlite.mjs",
+      "require": "./dist/jqlite.cjs",
+      "default": "./dist/jqlite.mjs"
+    }
+  },
+  "unpkg": "dist/jqlite.global.min.js",
+  "jsdelivr": "dist/jqlite.global.min.js",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "repository": {
     "type": "git",
