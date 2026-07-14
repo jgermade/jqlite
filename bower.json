@@ -1,6 +1,6 @@
 {
 	"name": "jqlite",
-	"main": "jqlite.js",
+	"main": "legacy/jqlite.js",
 	"version": "0.2.41",
 	"homepage": "https://github.com/jstools/jqlite",
 	"authors": [

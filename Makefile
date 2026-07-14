@@ -8,16 +8,16 @@ install:
 	npm install
 
 test: install
-	$(shell npm bin)/eslint jqlite.js
-	node make jqlite.min.js
-	@$(shell npm bin)/karma start karma.conf.js
-	@$(shell npm bin)/karma start karma.min.js
+	$(shell npm bin)/eslint legacy/jqlite.js
+	cd legacy && node make jqlite.min.js
+	@$(shell npm bin)/karma start legacy/karma.conf.js
+	@$(shell npm bin)/karma start legacy/karma.min.js
 
 dev:
-	@node make dev
+	@cd legacy && node make dev
 
 live:
-	@node make live
+	@cd legacy && node make live
 
 npm.publish:
 	npm version patch
